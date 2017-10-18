@@ -17,7 +17,7 @@ public class LocalDevelopmentRepository : IDeploymentRepository
     {
         #region Members
 
-        const string ExePath = "ExePath";
+        const string LocalExePath = "LocalExePath";
 
         readonly string _path;
         readonly string _deploymentConfigPath;
@@ -43,20 +43,20 @@ public class LocalDevelopmentRepository : IDeploymentRepository
         string GetBinariesPath(AppIdentity appIdentity)
         {
             if (ActiveConfiguration.TryGetValue(appIdentity.Id, out var app) &&
-                app.Properties.TryGetValue(ExePath, out var exePath))
+                app.Properties.TryGetValue(LocalExePath, out var exePath))
                 return exePath;
 
             else
-                throw new BinariesNotFoundException($"{appIdentity.Id} needs an '{ExePath}' property");
+                throw new BinariesNotFoundException($"{appIdentity.Id} needs an '{LocalExePath}' property");
         }
 
         string GetBinariesPath(AppDeploymentConfig app)
         {
-            if (app.Properties.TryGetValue(ExePath, out var exePath))
+            if (app.Properties.TryGetValue(LocalExePath, out var exePath))
                 return exePath;
 
             else
-                throw new BinariesNotFoundException($"{app.AppIdentity.Id} needs an '{ExePath}' property");
+                throw new BinariesNotFoundException($"{app.AppIdentity.Id} needs an '{LocalExePath}' property");
         }
 
         public async Task<DeploymentConfig> FetchDeploymentConfig()
