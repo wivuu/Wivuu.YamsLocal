@@ -1,8 +1,10 @@
 ﻿# YamsLocal
+
 Use YAMS deployment model during local development. Update your DeploymentConfig.json to include an "ExePath" in each application and they will automatically be copied and launched when you run your Yams project when initializing with the LocalDevelopmentFactory included in this package
 
 
 ## DeploymentConfig.json
+
 ```json
 {
   "Applications": [
@@ -19,6 +21,7 @@ Use YAMS deployment model during local development. Update your DeploymentConfig
 ```
 
 ## Program.cs
+
 ```c#
 [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
 public static void Main(string[] args)
