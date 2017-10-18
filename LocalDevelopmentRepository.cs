@@ -13,13 +13,21 @@ using Newtonsoft.Json.Serialization;
 
 namespace Wivuu.Yams.Local
 {
-    public class LocalDevelopmentRepository : IDeploymentRepository
+public class LocalDevelopmentRepository : IDeploymentRepository
     {
+        #region Members
+
+        const string ExePath = "ExePath";
+
         readonly string _path;
         readonly string _deploymentConfigPath;
         readonly IDeploymentConfigSerializer _serializer;
 
-        IDictionary<string, AppDeploymentConfig> ActiveConfiguration { get; set; }
+        IDictionary<string, LocalAppDeploymentConfig> ActiveConfiguration { get; set; }
+
+        #endregion
+
+        #region Constructor
 
         public LocalDevelopmentRepository(string path, IDeploymentConfigSerializer serializer)
         {
@@ -28,26 +36,84 @@ namespace Wivuu.Yams.Local
             _serializer           = serializer;
         }
 
+        #endregion
+
+        #region Methods
+
         string GetBinariesPath(AppIdentity appIdentity)
         {
             if (ActiveConfiguration.TryGetValue(appIdentity.Id, out var app) &&
-                app.Properties.TryGetValue("ExePath", out var exePath))
+                app.Properties.TryGetValue(ExePath, out var exePath))
                 return exePath;
 
             else
-                throw new BinariesNotFoundException($"{appIdentity.Id} needs an 'ExePath' property");
+                throw new BinariesNotFoundException($"{appIdentity.Id} needs an '{ExePath}' property");
+        }
+
+        string GetBinariesPath(AppDeploymentConfig app)
+        {
+            if (app.Properties.TryGetValue(ExePath, out var exePath))
+                return exePath;
+
+            else
+                throw new BinariesNotFoundException($"{app.AppIdentity.Id} needs an '{ExePath}' property");
         }
 
         public async Task<DeploymentConfig> FetchDeploymentConfig()
         {
+            // Increment app version
+            LocalAppDeploymentConfig IncrementVersion(string exeRoot, AppDeploymentConfig app)
+            {
+                var version = app.AppIdentity.Version;
+                var nextVersion = new Semver.SemVersion(version.Major, version.Minor, version.Patch + 1);
+
+                return new LocalAppDeploymentConfig(exeRoot,
+                    new AppIdentity(app.AppIdentity.Id, nextVersion),
+                    app.TargetClusters,
+                    app.Properties);
+            }
+
+            // Convert to LocalAppDeploymentConfig
+            LocalAppDeploymentConfig ToLocalAppConfig(string exeRoot, AppDeploymentConfig app) =>
+                new LocalAppDeploymentConfig(
+                    exeRoot,
+                    new AppIdentity(app.AppIdentity.Id, app.AppIdentity.Version),
+                    app.TargetClusters,
+                    app.Properties);
+
+            // Check if the app has an available update
+            LocalAppDeploymentConfig CheckAppUpdated(AppDeploymentConfig input)
+            {
+                var exeRoot = GetBinariesPath(input);
+
+                // Carry newly generated versions over
+                if (ActiveConfiguration != null &&
+                    ActiveConfiguration.TryGetValue(input.AppIdentity.Id, out var a) &&
+                    a is LocalAppDeploymentConfig activeVersion)
+                {
+                    var nextVersion = IncrementVersion(exeRoot, input);
+
+                    if (activeVersion.EntryPointCreatedDate < nextVersion.EntryPointCreatedDate)
+                        return nextVersion;
+                    else
+                        return activeVersion;
+                }
+                else
+                    return ToLocalAppConfig(exeRoot, input);
+            }
+
             using (var file = File.Open(_deploymentConfigPath, FileMode.Open, FileAccess.Read))
             using (var sr   = new StreamReader(file))
             {
-                var config = _serializer.Deserialize(await sr.ReadToEndAsync());
+                // Check if any changes have been made
+                var updates = _serializer
+                    .Deserialize(await sr.ReadToEndAsync())
+                    .Select(CheckAppUpdated)
+                    .ToList();
 
-                ActiveConfiguration = config.ToDictionary(app => app.AppIdentity.Id);
+                ActiveConfiguration = updates.ToDictionary(keySelector: u => u.AppIdentity.Id);
 
-                return config;
+                return new DeploymentConfig(updates);
             }
         }
 
@@ -115,6 +181,8 @@ namespace Wivuu.Yams.Local
 
             await FileUtils.CopyDir(path, localPath, true);
         }
+
+        #endregion
     }
 
     public static class LocalDevelopmentFactory

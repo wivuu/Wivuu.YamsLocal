@@ -1,6 +1,8 @@
 ﻿# YamsLocal
 
-Use YAMS deployment model during local development. Update your DeploymentConfig.json to include an "ExePath" in each application and they will automatically be copied and launched when you run your Yams project when initializing with the LocalDevelopmentFactory included in this package
+Use YAMS deployment model during local development. Update your DeploymentConfig.json to include an "ExePath" in each application and they will automatically be copied and launched when you run your Yams project when initializing with the LocalDevelopmentFactory included in this package.
+
+Rebuilding your Application should also automatically be picked up, causing your active YAMS process to exit the old version of your app and relaunch the new version.
 
 
 ## DeploymentConfig.json
