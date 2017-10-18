@@ -8,6 +8,9 @@
     <Company>Wivuu LLC</Company>
     <Description>Use YAMS deployment model during local development. Update your DeploymentConfig.json to include an "ExePath" in each application and they will automatically be copied and launched when you run your Yams project when initializing with the LocalDevelopmentFactory included in this package</Description>
     <PackageId>Wivuu.YamsLocal</PackageId>
+    <PackageReleaseNotes>Support for automatically detecting rebuilds of apps</PackageReleaseNotes>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
