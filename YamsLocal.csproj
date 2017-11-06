@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Etg.Yams" Version="1.2.2" />
+    <PackageReference Include="Etg.Yams" Version="1.5.1" />
   </ItemGroup>
 
 </Project>
