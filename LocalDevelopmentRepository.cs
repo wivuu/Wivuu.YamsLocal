@@ -93,7 +93,8 @@ public class LocalDevelopmentRepository : IDeploymentRepository
                 {
                     var nextVersion = IncrementVersion(exeRoot, input);
 
-                    if (activeVersion.EntryPointCreatedDate < nextVersion.EntryPointCreatedDate)
+                    if (activeVersion.EntryPointCreatedDate < nextVersion.EntryPointCreatedDate &&
+                        nextVersion.EntryPointCreatedDate < DateTimeOffset.UtcNow.AddSeconds(-10))
                         return nextVersion;
                     else
                         return activeVersion;
@@ -198,9 +199,10 @@ public class LocalDevelopmentRepository : IDeploymentRepository
             var updateSessionManager = new LocalUpdateSessionManager();
             var serializer           = new JsonSerializer(new DiagnosticsTraceWriter());
             var configSerializer     = new JsonDeploymentConfigSerializer(serializer);
+            var deploymentWriter     = new LocalDeploymentStatusWriter();
             var deploymentRepository = new LocalDevelopmentRepository(activeDirectory, configSerializer);
 
-            return new YamsDiModule(config, deploymentRepository, updateSessionManager).YamsService;
+            return new YamsDiModule(config, deploymentRepository, deploymentWriter, updateSessionManager).YamsService;
         }
     }
 }
