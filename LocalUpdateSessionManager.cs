@@ -5,10 +5,8 @@ namespace Wivuu.Yams.Local
 {
     public class LocalUpdateSessionManager : IUpdateSessionManager
     {
-        public Task EndUpdateSession(string applicationId) =>
-            Task.CompletedTask;
+        public Task EndUpdateSession() => Task.CompletedTask;
 
-        public Task<bool> TryStartUpdateSession(string applicationId) => 
-            Task.FromResult(true);
+        public Task<bool> TryStartUpdateSession() => Task.FromResult(true);
     }
 }

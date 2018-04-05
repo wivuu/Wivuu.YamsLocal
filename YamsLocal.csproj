@@ -10,11 +10,11 @@
     <PackageId>Wivuu.YamsLocal</PackageId>
     <PackageReleaseNotes>- Updated Yams</PackageReleaseNotes>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Etg.Yams" Version="1.6.1" />
+    <PackageReference Include="Etg.Yams" Version="1.7.0" />
   </ItemGroup>
 
 </Project>
