@@ -46,6 +46,8 @@ public static void Main(string[] args)
     var yamsService = LocalDevelopmentFactory.Create(yamsConfig);
 
     yamsService.Start().Wait();
+    
+    Console.ReadKey();
 }
 
 ```
